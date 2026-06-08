@@ -2,34 +2,55 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Rwanda Education Map (Leaflet)</title>
+  <title>Rwanda Education: clustered schools</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-  <style> html,body,#map{height:100%;margin:0;padding:0} #info{position:absolute;top:10px;left:10px;z-index:1000;background:white;padding:6px;border-radius:4px;box-shadow:0 0 6px rgba(0,0,0,0.2)} </style>
+  <style> html,body,#map{height:100%;margin:0;padding:0} #legend{position:absolute;right:10px;top:10px;z-index:1000;background:white;padding:8px;border-radius:4px;box-shadow:0 0 6px rgba(0,0,0,0.2)} </style>
 </head>
 <body>
-  <div id="info">Rwanda Education locations (sample)</div>
   <div id="map"></div>
-
+  <div id="legend"><strong>Legend</strong><br><span style="color:blue">●</span> All schools<br><span style="color:red">●</span> Clustered (≤1 km)</div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
-    var map = L.map('map').setView([-1.94, 29.87], 7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    const map = L.map('map').setView([-1.94, 29.87], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
 
-    fetch('data/education.geojson')
-      .then(function(response){ return response.json(); })
-      .then(function(geojson){
-        function onEachFeature(feature, layer){
-          if(feature.properties && feature.properties.name){
-            layer.bindPopup(feature.properties.name);
-          }
-        }
-        L.geoJSON(geojson, { onEachFeature: onEachFeature }).addTo(map);
-      })
-      .catch(function(err){ console.error('Could not load GeoJSON:', err); alert('Could not load map data.'); });
+    // Helper to style point markers
+    function styleAll(feature, latlng){
+      return L.circleMarker(latlng, { radius: 4, fillColor: '#2a7bd7', color: '#1f5fa8', weight:1, opacity:1, fillOpacity:0.8 });
+    }
+    function styleCluster(feature, latlng){
+      return L.circleMarker(latlng, { radius: 7, fillColor: '#d73027', color: '#a12012', weight:1, opacity:1, fillOpacity:0.9 });
+    }
+
+    // load full dataset
+    let allLayer = L.layerGroup();
+    fetch('data/osm_schools.geojson').then(r=>r.json()).then(geo=>{
+      L.geoJSON(geo, { pointToLayer: styleAll, onEachFeature: function(f, l){
+        const n = (f.properties && (f.properties.name || f.properties['name:en'])) || 'school';
+        l.bindPopup(n);
+      }}).addTo(allLayer);
+    }).catch(e=>console.error(e));
+
+    // load clustered dataset and highlight
+    let clusterLayer = L.layerGroup();
+    fetch('data/schools_clustered.geojson').then(r=>r.json()).then(geo=>{
+      L.geoJSON(geo, { pointToLayer: styleCluster, onEachFeature: function(f,l){
+        const n = (f.properties && (f.properties.name || f.properties['name:en'])) || 'clustered school';
+        l.bindPopup('<strong>'+n+'</strong><br/>Clustered: has another site within 1 km');
+      }}).addTo(clusterLayer);
+    }).catch(e=>console.error(e));
+
+    // control to toggle layers
+    const overlays = { 'All schools': allLayer, 'Clustered (≤1 km)': clusterLayer };
+    allLayer.addTo(map); clusterLayer.addTo(map);
+    L.control.layers(null, overlays, {collapsed:false}).addTo(map);
+
+    // Fit map to all data when loaded (simple approach: try to fetch all and set bounds)
+    fetch('data/osm_schools.geojson').then(r=>r.json()).then(geo=>{
+      const coords = geo.features.map(f=>[f.geometry.coordinates[1], f.geometry.coordinates[0]]);
+      if(coords.length) map.fitBounds(coords);
+    }).catch(()=>{});
   </script>
 </body>
 </html>
