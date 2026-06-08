@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "University of Rwanda - College of Science and Technology" }, "geometry": { "type": "Point", "coordinates": [30.0916, -1.9442] } },
+    { "type": "Feature", "properties": { "name": "University of Rwanda - Huye Campus" }, "geometry": { "type": "Point", "coordinates": [29.7417, -2.5956] } },
+    { "type": "Feature", "properties": { "name": "Kigali Independent University (ULK)" }, "geometry": { "type": "Point", "coordinates": [30.0600, -1.9500] } },
+    { "type": "Feature", "properties": { "name": "INES Ruhengeri" }, "geometry": { "type": "Point", "coordinates": [29.6319, -1.5033] } }
+  ]
+}
