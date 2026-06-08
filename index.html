@@ -2,54 +2,121 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Rwanda Education: clustered schools</title>
+  <title>Rwanda Education Map — Clustered Schools</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet core CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-  <style> html,body,#map{height:100%;margin:0;padding:0} #legend{position:absolute;right:10px;top:10px;z-index:1000;background:white;padding:8px;border-radius:4px;box-shadow:0 0 6px rgba(0,0,0,0.2)} </style>
+  <!-- MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+
+  <style>
+    html,body,#map{height:100%;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial}
+    .topbar{position:absolute;left:10px;top:10px;z-index:1001;background:rgba(255,255,255,0.95);padding:10px 12px;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.15)}
+    .legend{position:absolute;right:10px;top:10px;z-index:1001;background:rgba(255,255,255,0.95);padding:10px;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.15);min-width:140px}
+    .legend .swatch{display:inline-block;width:12px;height:12px;margin-right:8px;vertical-align:-2px;border-radius:6px}
+
+    /* Cluster icon styling */
+    .marker-cluster.cluster-red { background-color: rgba(215,48,39,0.9); }
+    .marker-cluster.cluster-red div { background-color: rgba(215,48,39,0.9); }
+    .marker-cluster div { box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset; }
+    .marker-cluster span { color: white; font-weight:700; }
+
+    /* Small, subtle style for all school markers */
+    .all-school-marker { background: rgba(42,123,215,0.9); width:10px;height:10px;display:block;left:-5px;top:-5px;border-radius:50%;border:1px solid rgba(31,95,168,0.9) }
+
+    .leaflet-control-layers { max-height: 250px; overflow:auto }
+
+    a.notice { color:#1f5fa8; text-decoration:none; font-weight:600 }
+  </style>
 </head>
 <body>
+  <div class="topbar"><strong>Rwanda Education map</strong><br><small>Clustered schools highlighted in red (≤1 km)</small></div>
   <div id="map"></div>
-  <div id="legend"><strong>Legend</strong><br><span style="color:blue">●</span> All schools<br><span style="color:red">●</span> Clustered (≤1 km)</div>
+  <div class="legend">
+    <div style="margin-bottom:6px"><strong>Legend</strong></div>
+    <div><span class="swatch" style="background:#2a7bd7"></span>All schools</div>
+    <div style="margin-top:6px"><span class="swatch" style="background:#d73027"></span>Clustered schools</div>
+  </div>
+
+  <!-- Leaflet core JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <!-- MarkerCluster JS -->
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
   <script>
-    const map = L.map('map').setView([-1.94, 29.87], 7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+    // Create map with a clean basemap
+    var map = L.map('map', { zoomControl: true }).setView([-1.94, 29.87], 7);
 
-    // Helper to style point markers
-    function styleAll(feature, latlng){
-      return L.circleMarker(latlng, { radius: 4, fillColor: '#2a7bd7', color: '#1f5fa8', weight:1, opacity:1, fillOpacity:0.8 });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }).addTo(map);
+
+    L.control.scale({imperial:false}).addTo(map);
+
+    // Helper: create small styled div icon for 'all schools'
+    function allSchoolIcon(){
+      return L.divIcon({ className: '', html: '<span class="all-school-marker"></span>', iconSize: [10,10] });
     }
-    function styleCluster(feature, latlng){
-      return L.circleMarker(latlng, { radius: 7, fillColor: '#d73027', color: '#a12012', weight:1, opacity:1, fillOpacity:0.9 });
+
+    // Custom cluster icon - red theme
+    function makeClusterIcon(cluster){
+      var count = cluster.getChildCount();
+      var size = 'large';
+      if(count < 10) size = 'small';
+      else if(count < 50) size = 'medium';
+      return L.divIcon({ html: '<div><span>' + count + '</span></div>', className: 'marker-cluster cluster-red marker-cluster-' + size, iconSize: L.point(40, 40) });
     }
 
-    // load full dataset
-    let allLayer = L.layerGroup();
-    fetch('data/osm_schools.geojson').then(r=>r.json()).then(geo=>{
-      L.geoJSON(geo, { pointToLayer: styleAll, onEachFeature: function(f, l){
-        const n = (f.properties && (f.properties.name || f.properties['name:en'])) || 'school';
-        l.bindPopup(n);
-      }}).addTo(allLayer);
-    }).catch(e=>console.error(e));
+    // Layers
+    var allLayer = L.layerGroup();
+    var clusteredLayerGroup = L.markerClusterGroup({ iconCreateFunction: makeClusterIcon, spiderfyOnMaxZoom: true, showCoverageOnHover: false });
 
-    // load clustered dataset and highlight
-    let clusterLayer = L.layerGroup();
-    fetch('data/schools_clustered.geojson').then(r=>r.json()).then(geo=>{
-      L.geoJSON(geo, { pointToLayer: styleCluster, onEachFeature: function(f,l){
-        const n = (f.properties && (f.properties.name || f.properties['name:en'])) || 'clustered school';
-        l.bindPopup('<strong>'+n+'</strong><br/>Clustered: has another site within 1 km');
-      }}).addTo(clusterLayer);
-    }).catch(e=>console.error(e));
+    // Load full dataset: show small blue dots
+    fetch('data/osm_schools.geojson').then(r=>r.json()).then(function(geo){
+      L.geoJSON(geo, {
+        pointToLayer: function(feature, latlng){
+          // small div icon
+          return L.marker(latlng, { icon: allSchoolIcon(), title: feature.properties && (feature.properties.name || 'school') });
+        },
+        onEachFeature: function(feature, layer){
+          if(feature.properties){
+            var n = feature.properties.name || feature.properties['name:en'] || 'school';
+            var t = feature.properties['amenity'] || '';
+            layer.bindPopup('<strong>' + n + '</strong><br/>' + (t ? 'Type: '+t+'<br/>' : '') + (feature.properties._id ? '<a target="_blank" href="https://www.openstreetmap.org/'+feature.properties._osm_type+'/'+feature.properties._id+'">Open in OSM</a>' : ''));
+          }
+        }
+      }).addTo(allLayer);
+      allLayer.addTo(map);
+    }).catch(e=>console.error('Could not load full schools geojson',e));
 
-    // control to toggle layers
-    const overlays = { 'All schools': allLayer, 'Clustered (≤1 km)': clusterLayer };
-    allLayer.addTo(map); clusterLayer.addTo(map);
-    L.control.layers(null, overlays, {collapsed:false}).addTo(map);
+    // Load clustered dataset and add to markerClusterGroup (red clusters)
+    fetch('data/schools_clustered.geojson').then(r=>r.json()).then(function(geo){
+      L.geoJSON(geo, {
+        pointToLayer: function(feature, latlng){
+          return L.marker(latlng, { title: feature.properties && (feature.properties.name || 'clustered school') });
+        },
+        onEachFeature: function(feature, layer){
+          var n = feature.properties && (feature.properties.name || feature.properties['name:en']) || 'clustered school';
+          layer.bindPopup('<div style="min-width:180px"><strong>' + n + '</strong><br/><small>Flagged: another site within 1 km</small></div>');
+        }
+      }).addTo(clusteredLayerGroup);
+      clusteredLayerGroup.addTo(map);
+    }).catch(e=>console.error('Could not load clustered geojson', e));
 
-    // Fit map to all data when loaded (simple approach: try to fetch all and set bounds)
-    fetch('data/osm_schools.geojson').then(r=>r.json()).then(geo=>{
-      const coords = geo.features.map(f=>[f.geometry.coordinates[1], f.geometry.coordinates[0]]);
-      if(coords.length) map.fitBounds(coords);
+    // Layer control
+    var overlays = {
+      'All schools': allLayer,
+      'Clustered schools (highlighted)': clusteredLayerGroup
+    };
+    L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+
+    // Fit to bounds conservatively once full dataset loads
+    fetch('data/osm_schools.geojson').then(r=>r.json()).then(function(geo){
+      var coords = geo.features.map(f=>[f.geometry.coordinates[1], f.geometry.coordinates[0]]);
+      if(coords.length) map.fitBounds(coords, {padding:[30,30]});
     }).catch(()=>{});
   </script>
 </body>
