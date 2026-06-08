@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Rwanda map (Leaflet)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <style> html,body,#map{height:100%;margin:0;padding:0} #info{position:absolute;top:10px;left:10px;z-index:1000;background:white;padding:6px;border-radius:4px;box-shadow:0 0 6px rgba(0,0,0,0.2)} </style>
+</head>
+<body>
+  <div id="info">Simple Rwanda points (Kigali, Huye, Rubavu)</div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    var map = L.map('map').setView([-1.94, 29.87], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    fetch('data/rwanda.geojson')
+      .then(function(response){ return response.json(); })
+      .then(function(geojson){
+        function onEachFeature(feature, layer){
+          if(feature.properties && feature.properties.name){
+            layer.bindPopup(feature.properties.name);
+          }
+        }
+        L.geoJSON(geojson, { onEachFeature: onEachFeature }).addTo(map);
+      })
+      .catch(function(err){ console.error('Could not load GeoJSON:', err); alert('Could not load map data.'); });
+  </script>
+</body>
+</html>
