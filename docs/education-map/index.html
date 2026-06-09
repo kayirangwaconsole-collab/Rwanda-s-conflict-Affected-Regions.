@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rwanda Education Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .top-bar {
+      background: #1e5c74;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .top-bar h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+    
+    .top-bar a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 15px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      font-size: 13px;
+      transition: background 0.3s;
+    }
+    
+    .top-bar a:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    #map {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .map-info {
+      position: absolute;
+      top: 80px;
+      left: 10px;
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 1000;
+      max-width: 250px;
+      font-size: 13px;
+    }
+    
+    .map-info h3 {
+      color: #1e5c74;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    
+    .map-info p {
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    
+    .stats {
+      background: #f0f8ff;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      border-left: 3px solid #2d7d8f;
+    }
+    
+    .stats-item {
+      font-size: 12px;
+      color: #1e5c74;
+      font-weight: 600;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <h1>🎓 Rwanda Education Map</h1>
+    <div>
+      <a href="../">← Back to Main Dashboard</a>
+    </div>
+  </div>
+  
+  <div id="map"></div>
+  
+  <div class="map-info">
+    <h3>📍 Education Map Info</h3>
+    <p>This map shows all school locations across Rwanda, with focus on conflict-affected regions.</p>
+    <div class="stats">
+      <div class="stats-item">📌 Total Schools: <span id="school-count">-</span></div>
+      <div class="stats-item">🌍 Data Source: OpenStreetMap</div>
+      <div class="stats-item">📅 Updated: April 2023</div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    // Create the map
+    var map = L.map('map').setView([-1.94, 29.87], 7);
+    
+    // Add the map background (tiles)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Load and display school data
+    fetch('../data/geojson/schools_clustered.geojson')
+      .then(response => response.json())
+      .then(data => {
+        // Update school count
+        document.getElementById('school-count').textContent = data.features.length;
+        
+        // Add each school as a marker
+        data.features.forEach(feature => {
+          const coords = feature.geometry.coordinates;
+          const props = feature.properties;
+          
+          // Create a blue circle marker
+          const marker = L.circleMarker(
+            [coords[1], coords[0]], // Note: GeoJSON uses [lng, lat], Leaflet uses [lat, lng]
+            {
+              radius: 5,
+              fillColor: '#3388ff',
+              color: '#fff',
+              weight: 1,
+              opacity: 0.9,
+              fillOpacity: 0.7
+            }
+          );
+          
+          // Create popup text
+          let popupText = '<div style="font-size: 12px;">';
+          popupText += '<strong>' + (props.name || 'School') + '</strong>';
+          if (props['addr:city']) {
+            popupText += '<br>📍 ' + props['addr:city'];
+          }
+          if (props['addr:street']) {
+            popupText += '<br>📮 ' + props['addr:street'];
+          }
+          popupText += '</div>';
+          
+          marker.bindPopup(popupText);
+          marker.addTo(map);
+        });
+      })
+      .catch(error => {
+        console.error('Error loading schools:', error);
+        alert('Could not load school data. Please refresh the page.');
+      });
+    
+    // Load and display reference points (major cities)
+    fetch('../data/geojson/rwanda.geojson')
+      .then(response => response.json())
+      .then(data => {
+        data.features.forEach(feature => {
+          const coords = feature.geometry.coordinates;
+          const props = feature.properties;
+          
+          // Create an orange marker for reference points
+          const marker = L.circleMarker(
+            [coords[1], coords[0]],
+            {
+              radius: 10,
+              fillColor: '#ff7a45',
+              color: '#fff',
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.8
+            }
+          );
+          
+          marker.bindPopup('<strong>' + props.name + '</strong><br><em>Reference Point</em>');
+          marker.addTo(map);
+        });
+      })
+      .catch(error => console.error('Error loading reference points:', error));
+  </script>
+</body>
+</html>
