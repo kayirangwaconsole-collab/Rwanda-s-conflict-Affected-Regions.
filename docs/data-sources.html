@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Sources - Rwanda Education Conflict Regions</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { display: flex; flex-direction: column; background: #f5f5f5; }
+    
+    .header {
+      background: linear-gradient(135deg, #1e5c74 0%, #2d7d8f 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 100;
+    }
+    
+    .header h1 { font-size: 28px; margin-bottom: 5px; font-weight: 600; }
+    .header p { font-size: 14px; opacity: 0.95; }
+    
+    .nav-links {
+      margin-top: 15px;
+      display: flex;
+      gap: 15px;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.2);
+      transition: background 0.3s;
+      font-size: 14px;
+    }
+    
+    .nav-links a:hover { background: rgba(255,255,255,0.3); }
+    .nav-links a.active { background: #27a84f; }
+    
+    .container {
+      flex: 1;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+      width: 100%;
+    }
+    
+    .section {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .section h2 {
+      color: #1e5c74;
+      margin-bottom: 15px;
+      font-size: 22px;
+      border-bottom: 3px solid #2d7d8f;
+      padding-bottom: 10px;
+    }
+    
+    .section h3 {
+      color: #2d7d8f;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    
+    .data-item {
+      background: #f9f9f9;
+      padding: 15px;
+      border-left: 4px solid #2d7d8f;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    
+    .data-item h4 {
+      color: #1e5c74;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    
+    .data-item p {
+      color: #555;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    
+    .source-link {
+      display: inline-block;
+      color: #0066cc;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 8px;
+    }
+    
+    .source-link:hover { text-decoration: underline; }
+    
+    .badge {
+      display: inline-block;
+      background: #e3f2fd;
+      color: #1565c0;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .stat-box {
+      background: #f0f8ff;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #2d7d8f;
+      text-align: center;
+    }
+    
+    .stat-box .number {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2d7d8f;
+    }
+    
+    .stat-box .label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    
+    .footer {
+      background: #333;
+      color: #999;
+      padding: 15px 20px;
+      font-size: 12px;
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .nav-links { flex-wrap: wrap; }
+      .container { padding: 0 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Rwanda Education Conflict Regions - Data Sources</h1>
+    <p>Complete documentation of data sources and collection methods</p>
+    <div class="nav-links">
+      <a href="index.html">← Back to Map</a>
+      <a href="data-sources.html" class="active">Data Sources</a>
+    </div>
+  </div>
+  
+  <div class="container">
+    <!-- Overview Section -->
+    <div class="section">
+      <h2>📊 Project Overview</h2>
+      <p>This project maps educational institutions in Rwanda's conflict-affected regions. The data combines OpenStreetMap school locations with vulnerability analysis to support humanitarian and development initiatives.</p>
+      
+      <div class="stats">
+        <div class="stat-box">
+          <div class="number">1,602</div>
+          <div class="label">Schools Mapped</div>
+        </div>
+        <div class="stat-box">
+          <div class="number">30.06°E</div>
+          <div class="label">Longitude Range</div>
+        </div>
+        <div class="stat-box">
+          <div class="number">-1.94°S</div>
+          <div class="label">Central Latitude</div>
+        </div>
+        <div class="stat-box">
+          <div class="number">2024</div>
+          <div class="label">Data Year</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Primary Data Sources -->
+    <div class="section">
+      <h2>🌐 Primary Data Sources</h2>
+      
+      <h3>1. OpenStreetMap (OSM) - Schools Database</h3>
+      <div class="data-item">
+        <h4>OpenStreetMap Global Database</h4>
+        <span class="badge">Primary Source</span>
+        <span class="badge">Free & Open</span>
+        <p><strong>Description:</strong> Raw school location data extracted from OpenStreetMap's global database. OSM is a collaborative, open-source project where volunteers contribute geographical data worldwide.</p>
+        <p><strong>Coverage:</strong> 1,602 school locations across Rwanda with attributes including:</p>
+        <ul style="margin-left: 20px; font-size: 13px; color: #555;">
+          <li>School name and official designation</li>
+          <li>Precise geographic coordinates (latitude/longitude)</li>
+          <li>Street address and city information</li>
+          <li>Last verification date</li>
+          <li>OSM object type and ID</li>
+        </ul>
+        <p><strong>Last Updated:</strong> April 2023</p>
+        <a href="https://www.openstreetmap.org/" class="source-link">→ Visit OpenStreetMap</a>
+      </div>
+      
+      <h3>2. Conflict-Affected Regions Classification</h3>
+      <div class="data-item">
+        <h4>Rwanda Geographic Conflict Impact Analysis</h4>
+        <span class="badge">Analysis</span>
+        <span class="badge">Custom</span>
+        <p><strong>Description:</strong> Classification of schools based on their proximity to historically conflict-affected areas and current vulnerability assessments.</p>
+        <p><strong>Methodology:</strong> Spatial analysis using conflict-affected region boundaries and humanitarian impact data.</p>
+        <p><strong>Reference Points:</strong></p>
+        <ul style="margin-left: 20px; font-size: 13px; color: #555;">
+          <li>Kigali (Capital) - 30.0587°E, -1.9441°S</li>
+          <li>Huye (Butare) - 29.7479°E, -2.5956°S</li>
+          <li>Rubavu (Gisenyi) - 29.2549°E, -1.7030°S</li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Data Files -->
+    <div class="section">
+      <h2>📁 Data Files Available</h2>
+      
+      <h3>GeoJSON Datasets</h3>
+      <div class="data-item">
+        <h4>schools_clustered.geojson</h4>
+        <span class="badge">1,602 Features</span>
+        <p><strong>Format:</strong> GeoJSON FeatureCollection</p>
+        <p><strong>Content:</strong> All school locations in Rwanda clustered for spatial analysis</p>
+        <p><strong>File Size:</strong> ~580 KB</p>
+        <p><strong>Usage:</strong> Default visualization on dashboard with marker clustering</p>
+      </div>
+      
+      <div class="data-item">
+        <h4>schools_nonclustered.geojson</h4>
+        <span class="badge">1,602 Features</span>
+        <p><strong>Format:</strong> GeoJSON FeatureCollection</p>
+        <p><strong>Content:</strong> Individual school marker positions</p>
+        <p><strong>File Size:</strong> ~270 KB</p>
+        <p><strong>Usage:</strong> Detailed view showing each school as individual marker</p>
+      </div>
+      
+      <div class="data-item">
+        <h4>rwanda.geojson</h4>
+        <span class="badge">3 Features</span>
+        <p><strong>Format:</strong> GeoJSON FeatureCollection</p>
+        <p><strong>Content:</strong> Reference points (Kigali, Huye, Rubavu)</p>
+        <p><strong>File Size:</strong> ~530 bytes</p>
+        <p><strong>Usage:</strong> Context points on map</p>
+      </div>
+      
+      <h3>Raw Data</h3>
+      <div class="data-item">
+        <h4>osm_schools.geojson</h4>
+        <span class="badge">Raw OSM Export</span>
+        <p><strong>Format:</strong> GeoJSON</p>
+        <p><strong>Content:</strong> Raw OpenStreetMap export of all schools</p>
+        <p><strong>File Size:</strong> ~870 KB</p>
+      </div>
+      
+      <div class="data-item">
+        <h4>osm_raw.json</h4>
+        <span class="badge">Raw OSM API Response</span>
+        <p><strong>Format:</strong> JSON (OSM API format)</p>
+        <p><strong>Content:</strong> Unprocessed OpenStreetMap API response</p>
+        <p><strong>File Size:</strong> ~927 KB</p>
+      </div>
+    </div>
+    
+    <!-- Data Attributes -->
+    <div class="section">
+      <h2>📋 School Data Attributes</h2>
+      <p>Each school feature includes the following properties:</p>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px;">
+        <thead>
+          <tr style="background: #f0f8ff; border-bottom: 2px solid #2d7d8f;">
+            <th style="padding: 10px; text-align: left; color: #1e5c74; font-weight: 600;">Attribute</th>
+            <th style="padding: 10px; text-align: left; color: #1e5c74; font-weight: 600;">Type</th>
+            <th style="padding: 10px; text-align: left; color: #1e5c74; font-weight: 600;">Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px;"><strong>name</strong></td>
+            <td style="padding: 10px;">String</td>
+            <td style="padding: 10px;">École Belge</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px;"><strong>addr:city</strong></td>
+            <td style="padding: 10px;">String</td>
+            <td style="padding: 10px;">Kigali</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px;"><strong>addr:street</strong></td>
+            <td style="padding: 10px;">String</td>
+            <td style="padding: 10px;">Rue KN 78</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px;"><strong>amenity</strong></td>
+            <td style="padding: 10px;">String</td>
+            <td style="padding: 10px;">school</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px;"><strong>check_date</strong></td>
+            <td style="padding: 10px;">Date (YYYY-MM-DD)</td>
+            <td style="padding: 10px;">2023-04-19</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px;"><strong>_id</strong></td>
+            <td style="padding: 10px;">Integer</td>
+            <td style="padding: 10px;">279245665</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Collection Methods -->
+    <div class="section">
+      <h2>🔍 Data Collection Methods</h2>
+      
+      <h3>OpenStreetMap Query Process</h3>
+      <div class="data-item">
+        <p><strong>Query Method:</strong> Overpass API (OSM Query Language)</p>
+        <p><strong>Filters Applied:</strong></p>
+        <ul style="margin-left: 20px; font-size: 13px; color: #555;">
+          <li>amenity = "school"</li>
+          <li>Geographic bounds: Rwanda administrative boundaries</li>
+          <li>Data validation: Coordinates within country bounds</li>
+        </ul>
+        <p><strong>Processing Steps:</strong></p>
+        <ol style="margin-left: 20px; font-size: 13px; color: #555;">
+          <li>Export raw OSM data via Overpass API</li>
+          <li>Convert to GeoJSON format</li>
+          <li>Validate geographic coordinates</li>
+          <li>Cluster analysis for spatial patterns</li>
+          <li>Generate both clustered and individual views</li>
+        </ol>
+      </div>
+    </div>
+    
+    <!-- Attribution & License -->
+    <div class="section">
+      <h2>📜 Attribution & License</h2>
+      
+      <div class="data-item">
+        <h4>OpenStreetMap Attribution</h4>
+        <p><strong>License:</strong> Open Data Commons Open Database License (ODbL) v1.0</p>
+        <p><strong>Attribution Required:</strong> © OpenStreetMap contributors</p>
+        <p><strong>Source:</strong> <a href="https://www.openstreetmap.org/" class="source-link">openstreetmap.org</a></p>
+        <p style="margin-top: 10px; font-size: 12px; color: #666;">You are free to copy, distribute, transmit and adapt this data, as long as you credit OpenStreetMap and its contributors.</p>
+      </div>
+      
+      <div class="data-item">
+        <h4>This Dashboard</h4>
+        <p><strong>Project:</strong> Rwanda's Education Conflict Affected Regions</p>
+        <p><strong>Repository:</strong> <a href="https://github.com/kayirangwaconsole-collab/Rwanda-s-conflict-Affected-Regions." class="source-link">GitHub Repository</a></p>
+        <p><strong>Visualization:</strong> Leaflet.js (BSD 2-Clause License)</p>
+      </div>
+    </div>
+    
+    <!-- Update Information -->
+    <div class="section">
+      <h2>🔄 Data Update Information</h2>
+      
+      <div class="data-item">
+        <p><strong>Last Data Refresh:</strong> April 2023</p>
+        <p><strong>OSM Data Source:</strong> Continuous (updated as contributors edit)</p>
+        <p><strong>Next Planned Update:</strong> Quarterly</p>
+        <p><strong>Data Quality Notes:</strong></p>
+        <ul style="margin-left: 20px; font-size: 13px; color: #555; margin-top: 10px;">
+          <li>All coordinates verified to be within Rwanda's geographic bounds</li>
+          <li>Some schools may have incomplete address information (OSM volunteer-maintained)</li>
+          <li>School status (operational, closed, under construction) not always available</li>
+          <li>Urban areas have higher data density than rural areas</li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Contact & Support -->
+    <div class="section">
+      <h2>📧 Contact & Support</h2>
+      <p>For questions about data sources, contact the project maintainer through:</p>
+      <p style="margin-top: 15px;">
+        🐙 <a href="https://github.com/kayirangwaconsole-collab" class="source-link">GitHub Profile</a>
+      </p>
+      <p style="margin-top: 10px; font-size: 12px; color: #666;">
+        This project is open source and welcomes contributions and improvements to the data and visualizations.
+      </p>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>© 2024 Rwanda Education Conflict Regions Dashboard | Data: OpenStreetMap Contributors | Last Updated: June 2024</p>
+  </div>
+</body>
+</html>
