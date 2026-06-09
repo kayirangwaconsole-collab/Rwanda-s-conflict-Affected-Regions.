@@ -178,9 +178,9 @@
     
     // Load schools data
     Promise.all([
-      fetch('data/schools_clustered.geojson').then(r => r.json()),
-      fetch('data/schools_nonclustered.geojson').then(r => r.json()),
-      fetch('data/rwanda.geojson').then(r => r.json())
+      fetch('data/geojson/schools_clustered.geojson').then(r => r.json()),
+      fetch('data/geojson/schools_nonclustered.geojson').then(r => r.json()),
+      fetch('data/geojson/rwanda.geojson').then(r => r.json())
     ])
     .then(function([clusteredData, individualData, rwandaData]) {
       // Display total schools
